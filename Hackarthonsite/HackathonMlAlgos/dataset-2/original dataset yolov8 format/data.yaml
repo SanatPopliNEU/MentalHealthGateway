@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 2
+names: ['happy', 'sad']
+
+roboflow:
+  workspace: deeplearningprojects-ruata
+  project: emotion-detection-project
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/deeplearningprojects-ruata/emotion-detection-project/dataset/2

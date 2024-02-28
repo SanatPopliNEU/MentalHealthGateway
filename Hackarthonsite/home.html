@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Emotion Detection</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('images/background.jpg'); /* Make sure to replace 'background.jpg' with the actual path to your image */
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #video {
+            display: block;
+            margin: 0 auto 20px;
+            border: 5px solid #fff;
+            border-radius: 10px;
+        }
+        #capture {
+            display: block;
+            margin: 0 auto 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #prediction {
+            font-size: 20px;
+            text-align: center;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <video id="video" width="640" height="480" autoplay></video>
+        <button id="capture">Capture</button>
+        <div id="prediction"></div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const button = document.getElementById('capture');
+        const predictionDisplay = document.getElementById('prediction');
+
+        // Get access to the camera
+        if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+                video.srcObject = stream;
+                video.play();
+            });
+        }
+
+        // Capture and send the image for prediction
+        button.addEventListener('click', function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 480;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, 640, 480);
+            canvas.toBlob(sendImageForPrediction, 'image/jpeg');
+        });
+
+        function sendImageForPrediction(blob) {
+            const formData = new FormData();
+            formData.append('image', blob);
+
+            fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                predictionDisplay.innerText = `Prediction: ${data.prediction}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
